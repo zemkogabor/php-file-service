@@ -1,0 +1,66 @@
+# Docker-compose for development
+version: '3.9'
+services:
+  php:
+    build:
+      context: _docker
+      dockerfile: php.Dockerfile
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./_docker/php/dev/base.ini:/usr/local/etc/php/conf.d/base.ini
+      - ./:/app
+    environment:
+      POSTGRES_HOST: pgsql
+      POSTGRES_DB: file
+      POSTGRES_USER: file
+      POSTGRES_PASSWORD: file
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+  php_worker:
+    build:
+      context: _docker
+      dockerfile: php.Dockerfile
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./_docker/php/dev/base.ini:/usr/local/etc/php/conf.d/base.ini
+      - ./:/app
+    environment:
+      POSTGRES_HOST: pgsql
+      POSTGRES_DB: file
+      POSTGRES_USER: file
+      POSTGRES_PASSWORD: file
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+    # todo: This script runs in an infinite loop, so the code does not detect changes. This makes development difficult.
+    command: "php amqp_consumer.php"
+  nginx:
+    image: nginx:1.21.6-alpine
+    restart: unless-stopped
+    volumes:
+      - ./_docker/nginx/dev/conf.d:/etc/nginx/conf.d
+      - ./_docker/data/nginx/log:/var/log/nginx
+    depends_on:
+      - php
+    ports:
+      - "9080:80"
+  pgsql:
+    image: postgres:14.5-bullseye
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: file
+      POSTGRES_USER: file
+      POSTGRES_PASSWORD: file
+    volumes:
+      - php_file_service_database:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3.10.7-alpine
+    restart: unless-stopped
+
+volumes:
+  php_file_service_database:

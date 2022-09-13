@@ -1,0 +1,24 @@
+{
+  "name": "php-file-service/php-file-service",
+  "version": "0.1",
+  "autoload": {
+    "psr-4": {"Acme\\": "src/"}
+  },
+  "require": {
+    "aws/aws-sdk-php": "^3.234",
+    "aventailltd/data": "^1.8",
+    "symfony/validator": "^6.1",
+    "monolog/monolog": "^3.2",
+    "php-amqplib/php-amqplib" : "^v3.2",
+    "ramsey/uuid": "^4.4",
+    "symfony/http-foundation": "^6.1",
+    "symfony/mime": "^6.1",
+    "friendsofphp/php-cs-fixer": "^3.11"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/AventailLtd/php-data"
+    }
+  ]
+}

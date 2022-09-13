@@ -1,0 +1,17 @@
+# composer vendor dir
+/vendor
+
+# File uploads
+/uploads
+
+# php-cs-fixer
+.php-cs-fixer.cache
+
+# docker data
+/_docker/data
+
+# Mac DS_Store Files
+.DS_Store
+
+# PHP Storm files
+.idea
