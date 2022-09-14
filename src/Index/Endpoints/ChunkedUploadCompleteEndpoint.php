@@ -10,6 +10,7 @@ use Acme\Router\BadRequestException;
 use Acme\File\File;
 use Acme\File\Form\ChunkedUploadCompleteForm;
 use DBLaci\Data\EtalonInstantiationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ChunkedUploadCompleteEndpoint extends Endpoint
 {
@@ -41,5 +42,11 @@ class ChunkedUploadCompleteEndpoint extends Endpoint
         Base::getAmqp()->publish(ChunksCombineJob::getName(), [
             'fileId' => $file->id,
         ]);
+
+        $response = new JsonResponse([
+            'uuid' => $file->download_uuid,
+        ]);
+
+        $response->send();
     }
 }

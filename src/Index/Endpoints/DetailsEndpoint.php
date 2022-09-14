@@ -9,11 +9,9 @@ use Acme\File\Form\IdentifyForm;
 use Acme\Router\BadRequestException;
 use Acme\Router\NotFoundException;
 use DBLaci\Data\EtalonInstantiationException;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\HeaderUtils;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-class DownloadEndpoint extends Endpoint
+class DetailsEndpoint extends Endpoint
 {
     /**
      * @throws NotFoundException
@@ -38,20 +36,15 @@ class DownloadEndpoint extends Endpoint
             throw new NotFoundException();
         }
 
-        if (!$file->isCompleted()) {
-            throw new NotFoundException();
-        }
-
-        $response = new BinaryFileResponse($file->getFilePath());
-
-        // Inline disposition is the preferred. The browser displays if it can.
-        $response->setContentDisposition(HeaderUtils::DISPOSITION_INLINE);
-
-        // todo: depend of accesskey existing
-        // $response->setPrivate();
-
-        // Based on the request, it sets a few things, for example the content type in the header.
-        $response->prepare(new Request());
+        $response = new JsonResponse([
+            'uuid' => $file->download_uuid,
+            'status' => $file->getStatusForClient(),
+            'name' => $file->name,
+            'originalName' => $file->original_name,
+            'createdAt' => strtotime($file->created_at),
+            'updatedAt' => strtotime($file->updated_at),
+            'deletedAt' => $file->deleted_at !== null ? strtotime($file->deleted_at) : null,
+        ]);
 
         $response->send();
     }

@@ -8,9 +8,11 @@ use Acme\Index\Endpoints\ChunkedUploadCompleteEndpoint;
 use Acme\Index\Endpoints\ChunkedUploadEndpoint;
 use Acme\Index\Endpoints\DownloadEndpoint;
 use Acme\Index\Endpoints\Endpoint;
+use Acme\Index\Endpoints\DetailsEndpoint;
 use Acme\Router\BadRequestException;
 use Acme\Router\NotFoundException;
 use Acme\Router\Router;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Index
 {
@@ -26,6 +28,7 @@ class Index
         $router->match(['POST'], '/chunked-upload', new ChunkedUploadEndpoint());
         $router->match(['PUT'], '/chunked-upload-complete', new ChunkedUploadCompleteEndpoint());
         $router->match(['GET'], '/download/([a-zA-Z0-9-]+)', new DownloadEndpoint());
+        $router->match(['GET'], '/details/([a-zA-Z0-9-]+)', new DetailsEndpoint());
 
         try {
             $router->run();
@@ -35,11 +38,8 @@ class Index
             header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request', true, 400);
 
             if ($e->publicMessages !== []) {
-                header('Content-Type: application/json');
-
-                echo json_encode([
-                    'messages' => $e->publicMessages,
-                ], JSON_UNESCAPED_UNICODE);
+                $response = new JsonResponse(['messages' => $e->publicMessages]);
+                $response->send();
             }
         }
     }

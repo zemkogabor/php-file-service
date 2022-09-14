@@ -13,6 +13,8 @@ use PDO;
 class File extends Etalon2
 {
     /**
+     * Primary key, only for internal usage.
+     *
      * @var int
      */
     public int $id;
@@ -100,6 +102,10 @@ class File extends Etalon2
     public const STATUS_COMBINE = 'combine';
     public const STATUS_COMPLETE = 'complete';
     public const STATUS_FAILED = 'failed';
+
+    public const STATUS_FOR_CLIENT_PROCESSING = 'processing';
+    public const STATUS_FOR_CLIENT_COMPLETE = 'complete';
+    public const STATUS_FOR_CLIENT_FAILED = 'failed';
 
     protected static function getDB(): PDO
     {
@@ -218,5 +224,28 @@ class File extends Etalon2
             unlink($chunk->getFilePath());
             $chunk->deleteFromDB();
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCompleted(): bool
+    {
+        return $this->status === static::STATUS_COMPLETE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusForClient(): string
+    {
+        return match ($this->status) {
+            File::STATUS_UPLOADING,
+            File::STATUS_READY_TO_COMBINE,
+            File::STATUS_COMBINE => File::STATUS_FOR_CLIENT_PROCESSING,
+            File::STATUS_COMPLETE => File::STATUS_FOR_CLIENT_COMPLETE,
+            File::STATUS_FAILED => File::STATUS_FOR_CLIENT_FAILED,
+            default => throw new \LogicException('Not supported status: "' . $this->status . '"'),
+        };
     }
 }

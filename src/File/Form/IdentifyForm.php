@@ -6,7 +6,7 @@ namespace Acme\File\Form;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class DownloadForm
+class IdentifyForm
 {
     #[Assert\NotBlank(message: 'UUID should not be blank.')]
     #[Assert\Uuid(message: 'UUID parameter is not a valid UUID.')]
