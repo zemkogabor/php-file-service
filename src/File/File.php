@@ -61,6 +61,11 @@ class File extends Etalon2
     public int $total_chunk_count;
 
     /**
+     * @var int
+     */
+    public int $is_private;
+
+    /**
      * @var string
      */
     public string $status;
@@ -89,6 +94,7 @@ class File extends Etalon2
         'name',
         'original_name',
         'total_chunk_count',
+        'is_private',
         'status',
         'created_at',
         'updated_at',
@@ -121,7 +127,9 @@ class File extends Etalon2
     {
         $schema = static::getDatabaseSchema();
         $sql = 'SELECT * FROM ' . $schema->quoteTableName(static::TABLE)
-            . ' WHERE ' . $schema->quoteColumnName('upload_uuid') . ' = :upload_uuid';
+            . ' WHERE ' . $schema->quoteColumnName('upload_uuid') . ' = :upload_uuid'
+            . ' AND ' . $schema->quoteColumnName('deleted_at') . ' IS NULL';
+
         $stmt = static::getDB()->prepare($sql);
         $stmt->execute(['upload_uuid' => $uuid]);
 
@@ -143,7 +151,9 @@ class File extends Etalon2
     {
         $schema = static::getDatabaseSchema();
         $sql = 'SELECT * FROM ' . $schema->quoteTableName(static::TABLE)
-            . ' WHERE ' . $schema->quoteColumnName('download_uuid') . ' = :download_uuid';
+            . ' WHERE ' . $schema->quoteColumnName('download_uuid') . ' = :download_uuid'
+            . ' AND ' . $schema->quoteColumnName('deleted_at') . ' IS NULL';
+
         $stmt = static::getDB()->prepare($sql);
         $stmt->execute(['download_uuid' => $uuid]);
 
@@ -247,5 +257,21 @@ class File extends Etalon2
             File::STATUS_FAILED => File::STATUS_FOR_CLIENT_FAILED,
             default => throw new \LogicException('Not supported status: "' . $this->status . '"'),
         };
+    }
+
+    /**
+     * @return array
+     */
+    public function getDetailsForClient(): array
+    {
+        return [
+            'uuid' => $this->download_uuid,
+            'status' => $this->getStatusForClient(),
+            'name' => $this->name,
+            'originalName' => $this->original_name,
+            'createdAt' => strtotime($this->created_at),
+            'updatedAt' => strtotime($this->updated_at),
+            'deletedAt' => $this->deleted_at !== null ? strtotime($this->deleted_at) : null,
+        ];
     }
 }

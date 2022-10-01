@@ -51,6 +51,10 @@ class ChunkedUploadForm
     )]
     public mixed $file;
 
+    #[Assert\NotNull(message: 'Private flag should not be blank.')]
+    #[Assert\PositiveOrZero]
+    public mixed $isPrivate;
+
     /**
      * @param File $file
      * @return File
@@ -62,6 +66,7 @@ class ChunkedUploadForm
         $file->chunk_size = (int) $this->chunkSize;
         $file->total_size = (int) $this->totalSize;
         $file->total_chunk_count = (int) $this->totalChunkCount;
+        $file->is_private = (int) $this->isPrivate;
 
         return $file;
     }

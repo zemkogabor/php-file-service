@@ -44,11 +44,11 @@ class DownloadEndpoint extends Endpoint
 
         $response = new BinaryFileResponse($file->getFilePath());
 
-        // Inline disposition is the preferred. The browser displays if it can.
-        $response->setContentDisposition(HeaderUtils::DISPOSITION_INLINE);
+        $response->setContentDisposition(HeaderUtils::DISPOSITION_ATTACHMENT);
 
-        // todo: depend of accesskey existing
-        // $response->setPrivate();
+        if ($file->is_private === 1) {
+            $response->setPrivate();
+        }
 
         // Based on the request, it sets a few things, for example the content type in the header.
         $response->prepare(new Request());

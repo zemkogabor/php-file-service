@@ -27,6 +27,8 @@ class Router
     /**
      * @throws BadRequestException
      * @throws NotFoundException
+     * @throws MethodNotAllowedException
+     * @throws UnauthorizedException
      */
     public function run(): void
     {
@@ -39,8 +41,7 @@ class Router
             }
 
             if (!in_array(strtoupper($_SERVER['REQUEST_METHOD']), $match->getMethods(), true)) {
-                header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed', true, 405);
-                exit(0);
+                throw new MethodNotAllowedException();
             }
 
             $pathParams = $patternMatches;
@@ -49,8 +50,13 @@ class Router
 
             $endpoint = $match->getEndpoint();
             $endpoint->pathParams = $pathParams;
+
+            if (!$endpoint->validateAuth()) {
+                throw new UnauthorizedException();
+            }
+
             $endpoint->run();
-            exit(0);
+            return;
         }
 
         throw new NotFoundException();

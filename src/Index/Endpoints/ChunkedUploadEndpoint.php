@@ -28,6 +28,7 @@ class ChunkedUploadEndpoint extends Endpoint
         $form->totalChunkCount = $_POST['totalChunkCount'] ?? null;
         $form->currentChunkIndex = $_POST['currentChunkIndex'] ?? null;
         $form->currentChunkSize = $_POST['currentChunkSize'] ?? null;
+        $form->isPrivate = $_POST['isPrivate'] ?? null;
         $form->file = $_FILES['file']['tmp_name'] ?? null;
 
         $errors = $validator->validate($form);

@@ -4,8 +4,12 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
+use Acme\Base\Base;
 use Acme\Router\BadRequestException;
 use Acme\Router\NotFoundException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\RequestOptions;
 use JsonException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
@@ -20,6 +24,52 @@ abstract class Endpoint
     public array $pathParams;
 
     private static ValidatorInterface $_validator;
+
+    /**
+     * @return bool
+     */
+    public function validateAuth(): bool
+    {
+        // The accessToken must exist as a header OR get parameter.
+        if (array_key_exists('HTTP_ACCESSTOKEN', $_SERVER)) {
+            $accessToken = $_SERVER['HTTP_ACCESSTOKEN'];
+        } else if (array_key_exists('accessToken', $_GET)) {
+            $accessToken = $_GET['accessToken'];
+        } else {
+            return false;
+        }
+
+        $authUrl = getenv('AUTH_URL');
+
+        if ($authUrl === false) {
+            throw new \LogicException('Auth url not set.');
+        }
+
+        $client = new Client();
+
+        $request = [
+            'accessToken' => $accessToken,
+        ];
+
+        try {
+            $response = $client->post($authUrl, [
+                RequestOptions::JSON => $request,
+                RequestOptions::TIMEOUT => 15,
+            ]);
+        } catch (GuzzleException $e) {
+            Base::getLogger()->error($e->getMessage(), [
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if ($response->getStatusCode() !== 200) {
+            return  false;
+        }
+
+        return true;
+    }
 
     /**
      * @return void

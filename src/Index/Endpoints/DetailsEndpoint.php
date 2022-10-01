@@ -36,15 +36,7 @@ class DetailsEndpoint extends Endpoint
             throw new NotFoundException();
         }
 
-        $response = new JsonResponse([
-            'uuid' => $file->download_uuid,
-            'status' => $file->getStatusForClient(),
-            'name' => $file->name,
-            'originalName' => $file->original_name,
-            'createdAt' => strtotime($file->created_at),
-            'updatedAt' => strtotime($file->updated_at),
-            'deletedAt' => $file->deleted_at !== null ? strtotime($file->deleted_at) : null,
-        ]);
+        $response = new JsonResponse($file->getDetailsForClient());
 
         $response->send();
     }

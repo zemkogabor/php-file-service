@@ -57,6 +57,7 @@ abstract class Job
     {
         return  [
             new ChunksCombineJob(),
+            new StatusChangeWebhookJob(),
         ];
     }
 }

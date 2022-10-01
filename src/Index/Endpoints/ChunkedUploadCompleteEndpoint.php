@@ -43,9 +43,7 @@ class ChunkedUploadCompleteEndpoint extends Endpoint
             'fileId' => $file->id,
         ]);
 
-        $response = new JsonResponse([
-            'uuid' => $file->download_uuid,
-        ]);
+        $response = new JsonResponse($file->getDetailsForClient());
 
         $response->send();
     }

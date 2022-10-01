@@ -23,6 +23,7 @@ class m20220901_02_create_default_file_tables implements MigrationInterface
             "name text NOT NULL, " .
             "original_name text NOT NULL, " .
             "total_chunk_count int NOT NULL, " .
+            "is_private bool NOT NULL, " .
             "status text NOT NULL, " .
             "created_at timestamp with time zone, " .
             "updated_at timestamp with time zone, " .

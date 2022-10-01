@@ -19,6 +19,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
       RABBITMQ_PASSWORD: guest
+      AUTH_URL: http://host.docker.internal/file/auth
   php_worker:
     build:
       context: _docker
@@ -37,6 +38,7 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: guest
       RABBITMQ_PASSWORD: guest
+      STATUS_CHANGE_WEBHOOK: http://host.docker.internal/file/status-change
     # todo: This script runs in an infinite loop, so the code does not detect changes. This makes development difficult.
     command: "php amqp_consumer.php"
   nginx:

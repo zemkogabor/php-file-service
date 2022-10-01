@@ -10,8 +10,10 @@ use Acme\Index\Endpoints\DownloadEndpoint;
 use Acme\Index\Endpoints\Endpoint;
 use Acme\Index\Endpoints\DetailsEndpoint;
 use Acme\Router\BadRequestException;
+use Acme\Router\MethodNotAllowedException;
 use Acme\Router\NotFoundException;
 use Acme\Router\Router;
+use Acme\Router\UnauthorizedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Index
@@ -32,13 +34,15 @@ class Index
 
         try {
             $router->run();
+        } catch (MethodNotAllowedException) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed', true, 405);
+        } catch (UnauthorizedException) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorized', true, 401);
         } catch (NotFoundException) {
             header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true, 404);
         } catch (BadRequestException $e) {
-            header($_SERVER['SERVER_PROTOCOL'] . ' 400 Bad Request', true, 400);
-
             if ($e->publicMessages !== []) {
-                $response = new JsonResponse(['messages' => $e->publicMessages]);
+                $response = new JsonResponse(['messages' => $e->publicMessages], 400);
                 $response->send();
             }
         }
