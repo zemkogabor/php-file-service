@@ -5,8 +5,8 @@ Docker based Stateless file service application.
 #### Features:
 - Upload files (chunk based)
 - Download files
-- Upload complete webhook - *Development in progress*
-- API based access control - *Development in progress*
+- Upload complete webhook
+- API based access control
 
 ## Install
 
