@@ -12,7 +12,7 @@ use GuzzleHttp\RequestOptions;
 
 class StatusChangeWebhookJob extends Job
 {
-    protected const MAX_RETRIES = 5;
+    protected const MAX_RETRIES = 10;
 
     /**
      * @inheritdoc
@@ -54,6 +54,7 @@ class StatusChangeWebhookJob extends Job
                 Base::getLogger()->warning($warningMessage, [
                     'message' => $e->getMessage(),
                 ]);
+                sleep(5);
                 continue;
             }
 
@@ -66,7 +67,7 @@ class StatusChangeWebhookJob extends Job
                 'statusCode' => $response->getStatusCode(),
             ]);
 
-            sleep(10);
+            sleep(5);
         }
 
         Base::getLogger()->error('Status change webhook failed.');

@@ -33,4 +33,10 @@ COPY amqp_consumer.php /app
 COPY cli.php /app
 COPY index.php /app
 
+RUN mkdir -p /app/uploads
+
+VOLUME /app/uploads
+
+ARG wwwdatauid=1000
+RUN usermod -u $wwwdatauid www-data
 RUN chown -R www-data:www-data /app
