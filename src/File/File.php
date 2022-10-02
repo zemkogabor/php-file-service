@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acme\File;
 
+use Acme\Amqp\Jobs\StatusChangeWebhookJob;
 use Acme\Base\Base;
 use Acme\Database\Database;
 use DBLaci\Data\Etalon2;
@@ -184,6 +185,7 @@ class File extends Etalon2
      * Combine chunks
      *
      * @return void
+     * @throws \JsonException
      */
     public function combineChunks(): void
     {
@@ -200,6 +202,7 @@ class File extends Etalon2
         if ($chunkCount !== $this->total_chunk_count) {
             $this->status = File::STATUS_FAILED;
             $this->save();
+            $this->statusChangeWebhook();
 
             throw new \LogicException('Expected chunks number is ' . $this->total_chunk_count . ' There are ' . $chunkCount);
         }
@@ -219,6 +222,7 @@ class File extends Etalon2
         if ($fileSize !== $this->total_size) {
             $this->status = File::STATUS_FAILED;
             $this->save();
+            $this->statusChangeWebhook();
 
             // Delete failed merged chunk.
             unlink($this->getFilePath());
@@ -228,6 +232,7 @@ class File extends Etalon2
 
         $this->status = File::STATUS_COMPLETE;
         $this->save();
+        $this->statusChangeWebhook();
 
         // Cleanup chunks
         foreach ($chunks as $chunk) {
@@ -273,5 +278,20 @@ class File extends Etalon2
             'updatedAt' => strtotime($this->updated_at),
             'deletedAt' => $this->deleted_at !== null ? strtotime($this->deleted_at) : null,
         ];
+    }
+
+    /**
+     * @return void
+     * @throws \JsonException
+     */
+    public function statusChangeWebhook(): void
+    {
+        if (getenv('STATUS_CHANGE_WEBHOOK') === false) {
+            return;
+        }
+
+        Base::getAmqp()->publish(StatusChangeWebhookJob::getName(), [
+            'fileId' => $this->id,
+        ]);
     }
 }

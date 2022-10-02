@@ -51,9 +51,7 @@ class Router
             $endpoint = $match->getEndpoint();
             $endpoint->pathParams = $pathParams;
 
-            if (!$endpoint->validateAuth()) {
-                throw new UnauthorizedException();
-            }
+            $endpoint->validateAuth();
 
             $endpoint->run();
             return;

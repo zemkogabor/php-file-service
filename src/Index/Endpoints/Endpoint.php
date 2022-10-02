@@ -4,13 +4,13 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
-use Acme\Base\Base;
 use Acme\Router\BadRequestException;
 use Acme\Router\NotFoundException;
+use Acme\Router\UnauthorizedException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use JsonException;
+use Symfony\Component\Mime\Exception\LogicException;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -26,9 +26,12 @@ abstract class Endpoint
     private static ValidatorInterface $_validator;
 
     /**
-     * @return bool
+     * Calling auth service
+     *
+     * @return void
+     * @throws UnauthorizedException|BadRequestException
      */
-    public function validateAuth(): bool
+    public function validateAuth(): void
     {
         // The accessToken must exist as a header OR get parameter.
         if (array_key_exists('HTTP_ACCESSTOKEN', $_SERVER)) {
@@ -36,7 +39,7 @@ abstract class Endpoint
         } else if (array_key_exists('accessToken', $_GET)) {
             $accessToken = $_GET['accessToken'];
         } else {
-            return false;
+            throw new UnauthorizedException();
         }
 
         $authUrl = getenv('AUTH_URL');
@@ -51,24 +54,19 @@ abstract class Endpoint
             'accessToken' => $accessToken,
         ];
 
-        try {
-            $response = $client->post($authUrl, [
-                RequestOptions::JSON => $request,
-                RequestOptions::TIMEOUT => 15,
-            ]);
-        } catch (GuzzleException $e) {
-            Base::getLogger()->error($e->getMessage(), [
-                'message' => $e->getMessage(),
-            ]);
+        $response = $client->post($authUrl, [
+            RequestOptions::JSON => $request,
+            RequestOptions::TIMEOUT => 10,
+        ]);
 
-            return false;
+        switch ($response->getStatusCode()) {
+            case 200:
+                return;
+            case 401:
+                throw new UnauthorizedException();
+            default:
+                throw new LogicException('Unexpected error during validation, status code: "' . $response->getStatusCode() . '"');
         }
-
-        if ($response->getStatusCode() !== 200) {
-            return  false;
-        }
-
-        return true;
     }
 
     /**

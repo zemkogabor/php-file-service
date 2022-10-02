@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
+use Acme\Base\Base;
 use Acme\Router\BadRequestException;
 use Acme\File\ChunkedFile;
 use Acme\File\File;

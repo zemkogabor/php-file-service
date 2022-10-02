@@ -3,8 +3,7 @@ version: '3.9'
 services:
   php:
     build:
-      context: _docker
-      dockerfile: php.Dockerfile
+      context: _docker/php/dev
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -22,8 +21,7 @@ services:
       AUTH_URL: http://host.docker.internal/file/auth
   php_worker:
     build:
-      context: _docker
-      dockerfile: php.Dockerfile
+      context: _docker/php/dev
     restart: unless-stopped
     working_dir: /app
     volumes:
