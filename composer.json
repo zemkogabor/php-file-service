@@ -5,7 +5,6 @@
     "psr-4": {"Acme\\": "src/"}
   },
   "require": {
-    "aws/aws-sdk-php": "^3.234",
     "aventailltd/data": "^1.8",
     "symfony/validator": "^6.1",
     "monolog/monolog": "^3.2",
