@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
-use Acme\Base\Base;
 use Acme\Router\BadRequestException;
 use Acme\File\ChunkedFile;
 use Acme\File\File;
@@ -45,7 +44,8 @@ class ChunkedUploadEndpoint extends Endpoint
             $file = $form->fillToFile($file);
             $file->download_uuid = Uuid::uuid4()->toString();
             // The file base name is the same as the download_uuid, but it could be something else, just be unique.
-            $file->name = $file->download_uuid . '.' . mb_strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION));
+            $extension = mb_strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION));
+            $file->name = $file->download_uuid . ($extension !== '' ? '.' . $extension : '');
             $file->status = File::STATUS_UPLOADING;
 
             $file->save(true);

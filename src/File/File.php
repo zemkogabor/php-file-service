@@ -21,7 +21,7 @@ class File extends Etalon2
     public int $id;
 
     /**
-     * This ID used for uploading, it is filled in by the client.
+     * This ID used for uploading, it is filled by the client.
      *
      * @var string
      */
@@ -293,5 +293,22 @@ class File extends Etalon2
         Base::getAmqp()->publish(StatusChangeWebhookJob::getName(), [
             'fileId' => $this->id,
         ]);
+    }
+
+    /**
+     * Upload file
+     *
+     * @param string $tmpFileName
+     * @return void
+     */
+    public function upload(string $tmpFileName): void
+    {
+        // Create dir if didn't exist before.
+        $dir = dirname($this->getFilePath());
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        rename($tmpFileName, $this->getFilePath());
     }
 }
