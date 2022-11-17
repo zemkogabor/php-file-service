@@ -44,7 +44,7 @@ class DownloadEndpoint extends Endpoint
 
         $response = new BinaryFileResponse($file->getFilePath());
 
-        $response->setContentDisposition(HeaderUtils::DISPOSITION_ATTACHMENT);
+        $response->setContentDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $file->original_name);
 
         if ($file->is_private === 1) {
             $response->setPrivate();
