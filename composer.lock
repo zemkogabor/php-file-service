@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ff64b362c00a3c64588e8a3abb625a6",
+    "content-hash": "324912d1906c07b6f1c5533b9bf3af2c",
     "packages": [
         {
             "name": "aventailltd/data",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AventailLtd/php-data.git",
-                "reference": "9844fb1e3e86fd8d2be1c5c16652f06cc370279a"
+                "reference": "489785c2e6b06da81a8915ee52510543df63549e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AventailLtd/php-data/zipball/9844fb1e3e86fd8d2be1c5c16652f06cc370279a",
-                "reference": "9844fb1e3e86fd8d2be1c5c16652f06cc370279a",
+                "url": "https://api.github.com/repos/AventailLtd/php-data/zipball/489785c2e6b06da81a8915ee52510543df63549e",
+                "reference": "489785c2e6b06da81a8915ee52510543df63549e",
                 "shasum": ""
             },
             "require": {
@@ -44,9 +44,9 @@
                 "PDO"
             ],
             "support": {
-                "source": "https://github.com/AventailLtd/php-data/tree/1.9.0"
+                "source": "https://github.com/AventailLtd/php-data/tree/1.9.1"
             },
-            "time": "2022-09-30T13:33:49+00:00"
+            "time": "2022-12-20T21:03:08+00:00"
         },
         {
             "name": "brick/math",
