@@ -35,8 +35,8 @@ class UploadEndpoint extends Endpoint
         $file = new File();
         $file = $form->fillToFile($file);
         $file->download_uuid = Uuid::uuid4()->toString();
-        $extension = mb_strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION));
-        $file->name = $file->download_uuid . ($extension !== '' ? '.' . $extension : '');
+        $extension = $file->getOriginalExtension();
+        $file->name = $file->download_uuid . ($extension !== null ? '.' . $extension : '');
         $file->total_chunk_count = 1;
         $file->total_size = filesize($form->file);
         $file->chunk_size = $file->total_size;

@@ -7,6 +7,7 @@ namespace Acme\File;
 use Acme\Amqp\Jobs\StatusChangeWebhookJob;
 use Acme\Base\Base;
 use Acme\Database\Database;
+use Acme\File\Generated\GeneratedFileImage;
 use DBLaci\Data\Etalon2;
 use DBLaci\Data\EtalonInstantiationException;
 use PDO;
@@ -45,7 +46,7 @@ class File extends Etalon2
     public int $total_size;
 
     /**
-     * Generated name
+     * Generated name of original file
      *
      * @var string
      */
@@ -168,7 +169,31 @@ class File extends Etalon2
     }
 
     /**
-     * Absolut file path
+     * List all completed files.
+     *
+     * @return File[]
+     */
+    public static function listAllCompleted(): array
+    {
+        $schema = static::getDatabaseSchema();
+        $sql = 'SELECT * FROM ' . $schema->quoteTableName(static::TABLE)
+            . ' WHERE ' . $schema->quoteColumnName('status') . ' = :status';
+        $stmt = static::getDB()->prepare($sql);
+        $stmt->execute([
+            'status' => static::STATUS_COMPLETE,
+        ]);
+
+        $ret = [];
+
+        while ($row = $stmt->fetch()) {
+            $ret[] = static::getInstanceFromRow($row);
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Absolute file path of original file.
      *
      * @return string
      */
@@ -179,6 +204,30 @@ class File extends Etalon2
             . date('Y', strtotime($this->created_at)) . '/'
             . date('m', strtotime($this->created_at)) . '/'
             . $this->name;
+    }
+
+    /**
+     * @inheritdoc
+     * @throws \JsonException
+     */
+    public function onChangeAfterSave(array $changeList)
+    {
+        if (array_key_exists('status', $changeList) && $changeList['status'] === static::STATUS_COMPLETE) {
+            $this->generateAll();
+        }
+    }
+
+    /**
+     * Generate all supported files. (e.g.: images)
+     * @throws \JsonException
+     */
+    public function generateAll(): void
+    {
+        if (in_array($this->getOriginalExtension(), GeneratedFileImage::getValidConvertExtensions(), true)) {
+            foreach (GeneratedFileImage::SIZE_KEYS as $sizeKey) {
+                (new GeneratedFileImage($this, $sizeKey))->createIfNotExistsAsync();
+            }
+        }
     }
 
     /**
@@ -293,6 +342,22 @@ class File extends Etalon2
         Base::getAmqp()->publish(StatusChangeWebhookJob::getName(), [
             'fileId' => $this->id,
         ]);
+    }
+
+    /**
+     * Original extension
+     *
+     * @return string|null
+     */
+    public function getOriginalExtension(): ?string
+    {
+        $extension = mb_strtolower(pathinfo($this->original_name, PATHINFO_EXTENSION));
+
+        if ($extension === '') {
+            return null;
+        }
+
+        return $extension;
     }
 
     /**

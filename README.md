@@ -7,6 +7,7 @@ Docker based Stateless file service application.
 - Download files
 - Upload (chunk combine) complete webhook
 - API based access control
+- Generate image thumbnails with Imagick
 
 #### TODO:
 - Failed job list api endpoint
@@ -34,6 +35,7 @@ docker-compose exec php composer install
 - `POST "/chunked-upload"`, See [ChunkedUploadForm.php](https://github.com/zemkogabor/php-file-service/blob/main/src/File/Form/ChunkedUploadForm.php) for details
 - `PUT "/chunked-upload-complete"`, See [ChunkedUploadCompleteForm.php](https://github.com/zemkogabor/php-file-service/blob/main/src/File/Form/ChunkedUploadCompleteForm.php) for details
 - `GET "/download/([a-zA-Z0-9-]+)"`
+- `GET "/image/([a-zA-Z0-9-]+)"`, See [ImageForm.php](https://github.com/zemkogabor/php-file-service/blob/main/src/File/Form/ImageForm.php) for details
 
 ## Docker
 

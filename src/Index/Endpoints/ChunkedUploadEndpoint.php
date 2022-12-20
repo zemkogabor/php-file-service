@@ -44,8 +44,8 @@ class ChunkedUploadEndpoint extends Endpoint
             $file = $form->fillToFile($file);
             $file->download_uuid = Uuid::uuid4()->toString();
             // The file base name is the same as the download_uuid, but it could be something else, just be unique.
-            $extension = mb_strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION));
-            $file->name = $file->download_uuid . ($extension !== '' ? '.' . $extension : '');
+            $extension = $file->getOriginalExtension();
+            $file->name = $file->download_uuid . ($extension !== null ? '.' . $extension : '');
             $file->status = File::STATUS_UPLOADING;
 
             $file->save(true);

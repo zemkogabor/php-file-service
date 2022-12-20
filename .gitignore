@@ -3,6 +3,8 @@
 
 # File uploads
 /uploads
+# Generated files
+/generated
 
 # php-cs-fixer
 .php-cs-fixer.cache

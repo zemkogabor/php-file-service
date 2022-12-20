@@ -9,6 +9,7 @@ use Acme\Index\Endpoints\ChunkedUploadEndpoint;
 use Acme\Index\Endpoints\DownloadEndpoint;
 use Acme\Index\Endpoints\Endpoint;
 use Acme\Index\Endpoints\DetailsEndpoint;
+use Acme\Index\Endpoints\ImageEndpoint;
 use Acme\Index\Endpoints\UploadEndpoint;
 use Acme\Router\BadRequestException;
 use Acme\Router\MethodNotAllowedException;
@@ -32,6 +33,7 @@ class Index
         $router->match(['POST'], '/chunked-upload', new ChunkedUploadEndpoint());
         $router->match(['PUT'], '/chunked-upload-complete', new ChunkedUploadCompleteEndpoint());
         $router->match(['GET'], '/download/([a-zA-Z0-9-]+)', new DownloadEndpoint());
+        $router->match(['GET'], '/image/([a-zA-Z0-9-]+)', new ImageEndpoint());
         $router->match(['GET'], '/details/([a-zA-Z0-9-]+)', new DetailsEndpoint());
 
         try {
