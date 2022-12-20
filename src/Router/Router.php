@@ -51,8 +51,7 @@ class Router
             $endpoint = $match->getEndpoint();
             $endpoint->pathParams = $pathParams;
 
-            // todo: Visszaírni!
-            //$endpoint->validateAuth();
+            $endpoint->validateAuth();
 
             $endpoint->run();
             return;
