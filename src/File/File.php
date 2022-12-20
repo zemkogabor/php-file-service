@@ -212,9 +212,11 @@ class File extends Etalon2
      */
     public function onChangeAfterSave(array $changeList)
     {
-        if (array_key_exists('status', $changeList) && $changeList['status'] === static::STATUS_COMPLETE) {
+        if (array_key_exists('status', $changeList) && $this->status === static::STATUS_COMPLETE) {
             $this->generateAll();
         }
+
+        parent::onChangeAfterSave($changeList);
     }
 
     /**
