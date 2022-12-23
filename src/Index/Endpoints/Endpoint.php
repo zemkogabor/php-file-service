@@ -8,6 +8,8 @@ use Acme\Router\BadRequestException;
 use Acme\Router\NotFoundException;
 use Acme\Router\UnauthorizedException;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use JsonException;
 use Symfony\Component\Mime\Exception\LogicException;
@@ -29,7 +31,8 @@ abstract class Endpoint
      * Calling auth service
      *
      * @return void
-     * @throws UnauthorizedException|BadRequestException
+     * @throws UnauthorizedException
+     * @throws GuzzleException
      */
     public function validateAuth(): void
     {
@@ -54,10 +57,18 @@ abstract class Endpoint
             'accessToken' => $accessToken,
         ];
 
-        $response = $client->post($authUrl, [
-            RequestOptions::JSON => $request,
-            RequestOptions::TIMEOUT => 10,
-        ]);
+        try {
+            $response = $client->post($authUrl, [
+                RequestOptions::JSON => $request,
+                RequestOptions::TIMEOUT => 10,
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse() && $e->getResponse()->getStatusCode() === 401) {
+                throw new UnauthorizedException();
+            }
+
+            throw $e;
+        }
 
         switch ($response->getStatusCode()) {
             case 200:
