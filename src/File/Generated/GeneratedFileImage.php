@@ -119,6 +119,19 @@ class GeneratedFileImage extends GeneratedFile
         // Fixed width and proportional height.
         $imagick->thumbnailImage(static::getImagesWidths()[$this->sizeKey], 0);
 
+        switch ($imagick->getImageOrientation()) {
+            case imagick::ORIENTATION_BOTTOMRIGHT:
+                $imagick->rotateimage("#000", 180); // rotate 180 degrees
+                break;
+            case imagick::ORIENTATION_RIGHTTOP:
+                $imagick->rotateimage("#000", 90); // rotate 90 degrees CW
+                break;
+            case imagick::ORIENTATION_LEFTBOTTOM:
+                $imagick->rotateimage("#000", -90); // rotate 90 degrees CCW
+                break;
+        }
+        $imagick->setImageOrientation(imagick::ORIENTATION_TOPLEFT);
+
         file_put_contents($this->getFilePath(), $imagick->getImageBlob());
     }
 
