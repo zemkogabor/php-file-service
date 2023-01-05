@@ -27,7 +27,13 @@ RUN pecl install imagick
 # pdo pdo_pgsql - PostgreSQL driver
 # bcmath - Required for php-amqplib/php-amqplib library
 # sockets - Required for php-amqplib/php-amqplib library
-RUN docker-php-ext-install pdo pdo_pgsql bcmath sockets
+# opcache - Opcache and JIT for performance incrase
+RUN docker-php-ext-install  \
+    pdo \
+    pdo_pgsql \
+    bcmath \
+    sockets \
+    opcache
 
 # imagick - ImageMagick extension for generated files
 RUN docker-php-ext-enable imagick
