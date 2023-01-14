@@ -295,6 +295,14 @@ class File extends Etalon2
     /**
      * @return bool
      */
+    public function isPrivate(): bool
+    {
+        return $this->is_private === 1;
+    }
+
+    /**
+     * @return bool
+     */
     public function isCompleted(): bool
     {
         return $this->status === static::STATUS_COMPLETE;

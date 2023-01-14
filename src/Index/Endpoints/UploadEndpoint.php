@@ -4,10 +4,15 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
+use Acme\Auth\Auth;
+use Acme\Base\Base;
 use Acme\Database\Database;
 use Acme\File\Form\UploadForm;
-use Acme\Router\BadRequestException;
+use Acme\Http\BadRequestException;
 use Acme\File\File;
+use Acme\Http\ForbiddenException;
+use Acme\Http\UnauthorizedException;
+use GuzzleHttp\Exception\GuzzleException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -15,9 +20,23 @@ class UploadEndpoint extends Endpoint
 {
     /**
      * @throws BadRequestException
+     * @throws UnauthorizedException
+     * @throws ForbiddenException
+     * @throws GuzzleException
      */
     public function run(): void
     {
+        $accessToken = $_SERVER['HTTP_ACCESSTOKEN'] ?? null;
+
+        if ($accessToken === null) {
+            throw new UnauthorizedException();
+        }
+
+        Base::getAuth()->run([
+            Auth::REQUEST_PARAMETER_ACCESS_TOKEN => $accessToken,
+            Auth::REQUEST_PARAMETER_METHOD => Auth::METHOD_UPLOAD,
+        ]);
+
         $validator = static::getValidator();
 
         $form = new UploadForm();

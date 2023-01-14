@@ -4,6 +4,8 @@ declare(strict_types = 1);
 
 namespace Acme\Router;
 
+use Acme\Http\BadRequestException;
+use Acme\Http\NotFoundException;
 use Acme\Index\Endpoints\Endpoint;
 
 class Router
@@ -25,10 +27,10 @@ class Router
     }
 
     /**
-     * @throws BadRequestException
-     * @throws NotFoundException
+     * @return void
      * @throws MethodNotAllowedException
-     * @throws UnauthorizedException
+     * @throws NotFoundException
+     * @throws BadRequestException
      */
     public function run(): void
     {
@@ -50,8 +52,6 @@ class Router
 
             $endpoint = $match->getEndpoint();
             $endpoint->pathParams = $pathParams;
-
-            $endpoint->validateAuth();
 
             $endpoint->run();
             return;

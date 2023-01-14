@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Acme\Router;
+namespace Acme\Http;
 
 class UnauthorizedException extends \Exception
 {

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Acme\Index;
 
+use Acme\Http\ForbiddenException;
 use Acme\Index\Endpoints\ChunkedUploadCompleteEndpoint;
 use Acme\Index\Endpoints\ChunkedUploadEndpoint;
 use Acme\Index\Endpoints\DownloadEndpoint;
@@ -11,11 +12,11 @@ use Acme\Index\Endpoints\Endpoint;
 use Acme\Index\Endpoints\DetailsEndpoint;
 use Acme\Index\Endpoints\ImageEndpoint;
 use Acme\Index\Endpoints\UploadEndpoint;
-use Acme\Router\BadRequestException;
+use Acme\Http\BadRequestException;
 use Acme\Router\MethodNotAllowedException;
-use Acme\Router\NotFoundException;
+use Acme\Http\NotFoundException;
 use Acme\Router\Router;
-use Acme\Router\UnauthorizedException;
+use Acme\Http\UnauthorizedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Index
@@ -42,6 +43,8 @@ class Index
             header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed', true, 405);
         } catch (UnauthorizedException) {
             header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorized', true, 401);
+        } catch (ForbiddenException) {
+            header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, 403);
         } catch (NotFoundException) {
             header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found', true, 404);
         } catch (BadRequestException $e) {

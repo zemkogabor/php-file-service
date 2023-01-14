@@ -4,12 +4,17 @@ declare(strict_types = 1);
 
 namespace Acme\Index\Endpoints;
 
+use Acme\Auth\Auth;
+use Acme\Base\Base;
 use Acme\File\File;
 use Acme\File\Form\ImageForm;
 use Acme\File\Generated\GeneratedFileImage;
-use Acme\Router\BadRequestException;
-use Acme\Router\NotFoundException;
+use Acme\Http\BadRequestException;
+use Acme\Http\ForbiddenException;
+use Acme\Http\NotFoundException;
+use Acme\Http\UnauthorizedException;
 use DBLaci\Data\EtalonInstantiationException;
+use GuzzleHttp\Exception\GuzzleException;
 use ImagickException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -18,9 +23,12 @@ use Symfony\Component\HttpFoundation\Request;
 class ImageEndpoint extends Endpoint
 {
     /**
-     * @throws NotFoundException
      * @throws BadRequestException
      * @throws ImagickException
+     * @throws NotFoundException
+     * @throws UnauthorizedException
+     * @throws ForbiddenException
+     * @throws GuzzleException
      */
     public function run(): void
     {
@@ -48,6 +56,20 @@ class ImageEndpoint extends Endpoint
 
         if (!in_array($file->getOriginalExtension(), GeneratedFileImage::getValidConvertExtensions(), true)) {
             throw new NotFoundException();
+        }
+
+        if ($file->isPrivate()) {
+            $accessToken = $_GET['accessToken'] ?? null;
+
+            if ($accessToken === null) {
+                throw new UnauthorizedException();
+            }
+
+            Base::getAuth()->run([
+                Auth::REQUEST_PARAMETER_ACCESS_TOKEN => $accessToken,
+                Auth::REQUEST_PARAMETER_METHOD => Auth::METHOD_DOWNLOAD,
+                Auth::REQUEST_PARAMETER_FILE_UUID => $file->download_uuid,
+            ]);
         }
 
         $generatedFile = new GeneratedFileImage($file, $form->size);
