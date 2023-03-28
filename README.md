@@ -1,6 +1,6 @@
 # PHP File Service
 
-Docker based Stateless file service application.
+HTTP microservice written in PHP for handling files.
 
 #### Features:
 - Upload files (default and chunk based)
